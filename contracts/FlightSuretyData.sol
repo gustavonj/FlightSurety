@@ -72,12 +72,12 @@ contract FlightSuretyData {
         contractOwner = msg.sender;
 
         /* Rubric: First airline is registered when contract is deployed. */ 
-        //TODO: Tests
-
+       
         addAirline(initialAirline, msg.sender);
         registerAirline(initialAirline);
 
-    }
+        //TODO: Tests
+  }
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -194,7 +194,9 @@ contract FlightSuretyData {
         } else {
             airlines[airline].airlineAddress = airline;
             airlines[airline].registeredIndex = 0;
+            airlines[airline].isRegistered = false;
             airlines[airline].activeIndex = 0;
+            airlines[airline].isActive = false;
             airlines[airline].registrantsIndexes.push(requester);
             airlines[airline].registrants[requester] = true;
         }
@@ -241,9 +243,8 @@ contract FlightSuretyData {
                             requireIsOperational 
                             returns(bool) 
     {
-        //require(airlines[airline].airlineAddress == airline, "Airline not found.");
-        //return airlines[airline].isRegistered;
-        return true;
+        require(airlines[airline].airlineAddress == airline, "Airline not found.");
+        return airlines[airline].isRegistered;
     }
     
     function isActiveAirline(address airline)
@@ -305,8 +306,8 @@ contract FlightSuretyData {
     //TODO: documentation
     function getRegistrants( address airline )
                                 external
-                                view //TODO: check it
-                                requireAuthorizedCaller
+                                view 
+                                //requireAuthorizedCaller FIXME:
                                 requireIsOperational
                                 returns (address[])  {
         return airlines[airline].registrantsIndexes;                                    
@@ -314,8 +315,8 @@ contract FlightSuretyData {
 
     function getRegisteredAirlines()
                                 external
-                                view //TODO: check it
-                                requireAuthorizedCaller 
+                                view 
+                                //requireAuthorizedCallerrequireAuthorizedCaller FIXME:
                                 requireIsOperational
                                 returns (address[])  {
         return registeredAirlines;                                    

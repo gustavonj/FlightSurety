@@ -128,7 +128,7 @@ contract FlightSuretyApp {
         address[] memory registeredAirlines = flightSuretyData.getRegisteredAirlines();
         address[] memory registrants = flightSuretyData.getRegistrants(airline);
         
-        if(registeredAirlines.length < 5 || registrants.length >= registeredAirlines.length / 2) {
+        if(registeredAirlines.length < 4 || (registeredAirlines.length >= 4 && registrants.length >= registeredAirlines.length / 2)) {
            flightSuretyData.registerAirline(airline);
            return (true, registrants.length);
         }
@@ -145,9 +145,9 @@ contract FlightSuretyApp {
     */   
     function submitFunds()
                         external
+                        payable
                         requireIsOperational() 
                         requireRegisteredAirline() 
-                        returns(bool success, uint256 votes)
     {
         flightSuretyData.fund.value(msg.value)(msg.sender);
 
