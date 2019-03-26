@@ -13,19 +13,122 @@
 
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
         <a class="navbar-brand" href="#">FlightSurety</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
-            aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
+        <!--div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Status</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="airline.html">Airlines</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="passenger.html">Passengers</a>
+                </li>
+            </ul>
+
+        </div-->
+
     </nav>
+
+
 
     <main class="container">
 
-        <div id="display-wrapper" class="top-20">
+        <div id="register-display-wrapper" class="top-20">
         </div>
-        <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number"> <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
+
+        <div class="form-group">
+            <h2>Airlines</h2>
+            <h5>Register Airline</h5>
+            <label for="registerAirlineAddress">Airline Address:</label>
+            <input type="text" id="registerAirlineAddress" placeholder="Enter wallet address"></input>
+            <br />
+            <label for="requesterAddress">Requester Address:</label>
+            <input type="text" id="requesterAddress" placeholder="Enter wallet address"></input>
+            <br />
+            <btn class="btn btn-primary" id="registerAirline">Register</btn>
         </div>
+
+        <div id="funds-display-wrapper" class="top-20">
+        </div>
+        <div class="form-group">
+
+            <h5>Submit Funds</h5>
+            <label for="fundsAirlineAddress">Airline Address:</label>
+            <input type="text" id="fundsAirlineAddress" placeholder="Enter wallet address"></input>
+            <br />
+            <label for="fundsValue">Funds Value:</label>
+            <input type="number" id="fundsValue" placeholder="Enter Value (in ETH)">
+            <br />
+            <btn class="btn btn-primary" id="submitFunds">Submit Funds</btn>
+        </div>
+
+        <div id="insurance-display-wrapper" class="top-20">
+        </div>
+
+        <div class="form-group">
+
+            <h2>Passengers</h2>
+            <h5>Buy Insurance</h5>
+           
+            <label for="passengerAddress">Passenger Address:</label>
+            <input type="text" id="passengerAddress" placeholder="Enter wallet address"></input>
+            <br />
+            <label for="insuranceAirlineAddress">Airline Address:</label>
+            <input type="text" id="insuranceAirlineAddress" placeholder="Enter wallet address"></input>
+           
+            <br />
+            <label for="selectFlight">Flight:</label>
+            <select id="selectFlight" label="">
+                <option value="0" selected>Select a Flight</option>
+                <option value='{"flight":"AIR001,"timestamp":"201906291855"}'>AIR001 - New York to Paris - 201906291855
+                </option>
+                <option value='{"flight":"BOE003","timestamp":"201906260400"}'>BOE003 - New York to Sidney -
+                    201906260400</option>
+                <option value='{"flight":"BOE004","timestamp":"201906260630"}'>BOE004 - New York to London -
+                    201906260630</option>
+                <option value='{"flight":"BOE007","timestamp":"201906260945"}'>BOE007 - New York to Tokyo - 201906260945
+                </option>
+                <option value='{"flight":"EMI002","timestamp":"201906241200"}'>EMI002 - New York to Dubai - 201906241200
+                </option>
+                <option value='{"flight":"EMI003","timestamp":"201906251200"}'>EMI003 - New York to Doha - 201906251200
+                </option>
+                <option value='{"flight":"EMI008","timestamp":"201906261200"}'>EMI008 - New York to Abu Dhabi -
+                    201906261200</option>
+                <option value='{"flight":"LAT004","timestamp":"201906241200"}'>LAT004 - New York to Sao Paulo -
+                    201906241200</option>
+                <option value='{"flight":"LAT007","timestamp":"201906211200"}'>LAT007 - New York to Buenos Aires -
+                    201906211200</option>
+                <option value='{"flight":"GOL001","timestamp":"201906220845"}'>GOL001 - New York to Rio de Janeiro -
+                    201906220845 </option>
+            </select>
+            <br />
+            <label for="insuranceValue">Insurance Value:</label>
+            <input type="number" id="insuranceValue" placeholder="Enter Value (in ETH)">
+            <br />
+            <btn class="btn btn-primary" id="buyInsurance">Buy Insurance</btn>
+        </div>
+
+        <div id="credits-display-wrapper" class="top-20">
+        </div>
+
+        <div class="form-group">
+            <h5>Request Credits</h5>
+            
+            <label for="insureeAddreess">Passenger Address:</label>
+            <input type="text" id="insureeAddreess" placeholder="Enter wallet address"></input>
+            
+            <btn class="btn btn-primary" id="requestCredits">Request</btn>
+        </div>
+
+
+
+
     </main>
 
 </body>

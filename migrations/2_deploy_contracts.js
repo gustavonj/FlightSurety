@@ -4,7 +4,7 @@ const fs = require('fs');
 
 module.exports = function(deployer) {
 
-    let firstAirline = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
+    let firstAirline = '0xF13B65Bfb8071C05D717ee93a166958B95CF3b5F';
     deployer.deploy(FlightSuretyData, firstAirline)
     .then(() => {
         return deployer.deploy(FlightSuretyApp, FlightSuretyData.address)
@@ -18,6 +18,7 @@ module.exports = function(deployer) {
                     }
                     fs.writeFileSync(__dirname + '/../src/dapp/config.json',JSON.stringify(config, null, '\t'), 'utf-8');
                     fs.writeFileSync(__dirname + '/../src/server/config.json',JSON.stringify(config, null, '\t'), 'utf-8');
+                    //fs.writeFileSync(__dirname + '/../src/bootstrap/config.json',JSON.stringify(config, null, '\t'), 'utf-8');
                 });
     });
 }

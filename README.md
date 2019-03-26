@@ -1,6 +1,6 @@
 # FlightSurety
 
-FlightSurety is a sample application project for Blockchain study.
+FlightSurety is a sample Dapp (Ethereum) application project for Blockchain study.
 
 ## Install
 

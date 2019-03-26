@@ -10,7 +10,6 @@ module.exports = {
         return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/", 0, 50);
       },
       network_id: "*"// Match any network id
-    
     }
   },
   compilers: {

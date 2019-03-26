@@ -54,6 +54,7 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
+    //event debugEvent(uint id);
     event authorizedContract(address appContract);
     event deauthorizedContract(address appContract);
 
@@ -115,15 +116,19 @@ contract FlightSuretyData {
         _;
     }
 
-    modifier requireAuthorizedCallerForRegisterAirline() //TODO: tests
+    modifier requireAuthorizedCallerForRegisterAirline() 
     {
-        require((authorizedContracts[msg.sender] == true) || msg.sender == contractOwner, "Caller is not authorized contract for register airline");
+        true;
+        //FIXME:
+        //require((authorizedContracts[msg.sender] == true) || msg.sender == contractOwner, "Caller is not authorized contract for register airline");
         _;
     }
 
-    modifier requireAuthorizedCaller() //TODO: tests
+    modifier requireAuthorizedCaller() 
     {
-        require((authorizedContracts[msg.sender] == true), "Caller is not authorized contract");
+        true;
+        //FIXME:
+        //require((authorizedContracts[msg.sender] == true), string(abi.encodePacked("Caller is not authorized contract ", msg.sender)));
         _;
     }
 
@@ -192,11 +197,10 @@ contract FlightSuretyData {
                             address requester
                         ) 
                         public 
-                        //pure //TODO: check it
+                        //pure 
                         requireAuthorizedCallerForRegisterAirline
                         requireIsOperational 
     {   
-            
         require(!airlines[airline].registrants[requester], "Airline is already added for this requester.");
 
         if (airlines[airline].airlineAddress == airline) {
@@ -214,7 +218,6 @@ contract FlightSuretyData {
         }
 
         emit addedAirline(airline, requester);
-        
     }
 
 
@@ -228,9 +231,8 @@ contract FlightSuretyData {
         require(!isRegisteredAirline(airline), "Airline already registered");
         airlines[airline].registeredIndex = registeredAirlines.push(airline) -1;
         airlines[airline].isRegistered = true;
-
-        return airlines[airline].registeredIndex;
         emit registeredAirline(airline);
+        return airlines[airline].registeredIndex;
     }
 
     function activateAirline(address airline)
@@ -310,11 +312,11 @@ contract FlightSuretyData {
 
     }    
 
-    //TODO: documentation
+    
     function getRegistrants( address airline )
                                 external
                                 view 
-                                //requireAuthorizedCaller FIXME:
+                                requireAuthorizedCaller
                                 requireIsOperational
                                 returns (address[])  {
         return airlines[airline].registrantsIndexes;                                    
@@ -323,7 +325,7 @@ contract FlightSuretyData {
     function getRegisteredAirlines()
                                 external
                                 view 
-                                //requireAuthorizedCallerrequireAuthorizedCaller FIXME:
+                                requireAuthorizedCaller
                                 requireIsOperational
                                 returns (address[])  {
         return registeredAirlines;                                    
@@ -332,7 +334,7 @@ contract FlightSuretyData {
     function getActiveAirlines()
                                 external
                                 view 
-                                //requireAuthorizedCaller FIXME:
+                                requireAuthorizedCaller
                                 requireIsOperational
                                 returns (address[])  {
         return activeAirlines;                                    
@@ -341,7 +343,7 @@ contract FlightSuretyData {
     function getAirlineFunds(address airline)
                             public
                             view 
-                            //requireAuthorizedCaller FIXME:
+                            requireAuthorizedCaller
                             requireIsOperational
                             returns (uint256) {
         return airlines[airline].fundsValue;
@@ -364,7 +366,6 @@ contract FlightSuretyData {
     {
         require(msg.value > 0, "Insurance value is zero");
         require(isActiveAirline(airline), "Airline is not active");
-        require(airlines[airline].airlineAddress != buyer, "Insuree can not to be an airline");
         
         bytes32 _flightKey = getFlightKey(airline, flight, timestamp);
         bytes32 _insuranceKey = keccak256(abi.encodePacked(buyer, airline, flight, timestamp));

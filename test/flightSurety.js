@@ -8,6 +8,7 @@ contract('Flight Surety Tests', async (accounts) => {
   before('setup contract', async () => {
     config = await Test.Config(accounts);
     await config.flightSuretyData.authorizeContract(config.flightSuretyApp.address);
+    await config.flightSuretyData.authorizeContract("0xFa82B9121E37A104DE430E84CA63DcFfBcfF2551");
   });
 
   /****************************************************************************************/

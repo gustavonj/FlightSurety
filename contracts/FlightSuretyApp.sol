@@ -28,6 +28,7 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
     uint256 constant MAX_INSURANCE_VALUE = 1 ether;
 
+    //event debugAppEvent(uint id);
 
     address private contractOwner;          // Account used to deploy contract
 
@@ -54,7 +55,6 @@ contract FlightSuretyApp {
     */
     modifier requireIsOperational() 
     {
-        //TODO: fix me
          // Modify to call data contract's status
         require(flightSuretyData.isOperational(), "Contract is currently not operational");  //TODO: melhorar e ter um operational tbm deste contrato
         _;  // All modifiers require an "_" which indicates where the function body will be added
@@ -70,11 +70,12 @@ contract FlightSuretyApp {
     }
 
     /**
-    * @dev Modifier that requires the "ContractOwner" account to be the function caller
+    * @dev Modifier that requires the "Airline" that is registered
     */
     modifier requireRegisteredAirline()
     {
         require(flightSuretyData.isRegisteredAirline(msg.sender), "Sender is not registered airline");
+        true;
         _;
     }
 
@@ -117,30 +118,28 @@ contract FlightSuretyApp {
                                  address airline
                             )
                             external
-                            //pure //TODO: checkit
+                            //pure
                             requireIsOperational() 
                             requireRegisteredAirline() 
-                            returns(bool success, uint256 votes)
+                            //returns(bool success, uint256 votes)
     {
        
-         flightSuretyData.addAirline(airline, msg.sender);
- 
+        flightSuretyData.addAirline(airline, msg.sender);
+        
         address[] memory registeredAirlines = flightSuretyData.getRegisteredAirlines();
         address[] memory registrants = flightSuretyData.getRegistrants(airline);
         
         if(registeredAirlines.length < 4 || (registeredAirlines.length >= 4 && registrants.length >= registeredAirlines.length / 2)) {
            flightSuretyData.registerAirline(airline);
-           return (true, registrants.length);
+           //return (true, registrants.length);
         }
 
-        return (false, registrants.length);
-        //TODO: emits event
-        //TODO: test it
+        //return (false, registrants.length);
     }
 
 
     /**
-    * @dev Add an airline to the registration queue
+    * @dev Submit funds to activate an airline
     *
     */   
     function submitFunds()
@@ -152,15 +151,12 @@ contract FlightSuretyApp {
         require(msg.value > 0, "Funds value is 0");
 
         flightSuretyData.fund.value(msg.value)(msg.sender);
-        //flightSuretyData.fund.value(msg.sender);
-        //flightSuretyData.fund(msg.sender);
-
+        
         uint256 submittedFunds = flightSuretyData.getAirlineFunds(msg.sender);
         if(submittedFunds >= 10 && !flightSuretyData.isActiveAirline(msg.sender)){
             flightSuretyData.activateAirline(msg.sender);
         }
 
-        //TODO: test it
     }
 
     /**
@@ -182,18 +178,18 @@ contract FlightSuretyApp {
         }
 
         flightSuretyData.buyInsurance.value(msg.value)(airline, flight, timestamp, msg.sender);
-        //TODO: emit insurancePurchased(airline, flight, timestamp, passenger, insuranceAmount);
     }
 
   /**
-     * @dev Buy insurance for a flight
+     * Credit Insurees
      *
      */
     function creditInsurees(address airline, 
                          string flight, 
                          uint256 timestamp)
                         external 
-                        requireIsOperational(){ //TODO: check it não precisa de mais requires?
+                        requireIsOperational()
+                        requireRegisteredAirline(){ 
 
        bytes32[] memory insurances = flightSuretyData.getFlightInsurances(airline, flight, timestamp);
        
@@ -203,27 +199,13 @@ contract FlightSuretyApp {
 
     }
 
-                       
-     function payToInsuree(address requester)  external requireIsOperational() { //TODO: check it não precisa de mais requires?
+    /**
+     * Pay credits to a insuree
+     */              
+     function payToInsuree(address requester) external requireIsOperational() { 
          flightSuretyData.payToInsuree(requester);
      }
 
-
-
-    //TODO: check it
-
-   /**
-    * @dev Register a future flight for insuring.
-    *
-    */  
-    /*function registerFlight
-                                (
-                                )
-                                external
-                                pure
-    {
-
-    }*/
     
    /**
     * @dev Called after oracle has updated flight status
