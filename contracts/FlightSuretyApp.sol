@@ -149,7 +149,11 @@ contract FlightSuretyApp {
                         requireIsOperational() 
                         requireRegisteredAirline() 
     {
-        flightSuretyData.fund.value(msg.value)(msg.sender);
+        require(msg.value > 0, "Funds value is 0");
+
+        //flightSuretyData.fund.value(msg.value)(msg.sender);
+        //flightSuretyData.fund.value(msg.sender);
+        flightSuretyData.fund(msg.sender);
 
         uint256 submittedFunds = flightSuretyData.getAirlineFunds(msg.sender);
         if(submittedFunds >= 10 && !flightSuretyData.isActiveAirline(msg.sender)){

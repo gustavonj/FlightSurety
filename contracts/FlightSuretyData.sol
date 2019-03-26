@@ -35,28 +35,39 @@ contract FlightSuretyData {
         address insureeAddress;
         uint256 creditValue;
         bytes32[] creditedInsurances;
-        bytes32[] paidInsurances;
     }
 
     address[] registeredAirlines;
     address[] activeAirlines;
 
     mapping(address => Airline) private airlines;
-    mapping(address => bool) private authorizedContracts; 
     mapping(bytes32 => Insurance) private insurances;
     mapping(bytes32 => bytes32[]) private flightInsurances;
     mapping(address => InsureeCredit) private insureeCredits;
 
     // Allowed App Contracts
+    mapping(address => bool) private authorizedContracts; 
+
+    
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
-    //TODO:
+    event authorizedContract(address appContract);
+    event deauthorizedContract(address appContract);
 
+    event addedAirline(address airlineAddress, address requester);
+    event registeredAirline(address airlineAddress);
+    event airlineSubmittedFunds(address airlineAddress);
+    event activedAirline(address airlineAddress);
 
-
+    event removedActiveAirline(address airlineAddress, uint deletedIndex);
+    event removedRegisteredAirline(address airlineAddress, uint deletedIndex);
+    
+    event insurancePurchased(address airline, string flight, uint256 timestamp, address insuree, uint256 value);
+    event creditedFunds(bytes32 insuranceKey, bytes32 flightKey, address insurer, address insuree, uint256 value, bool isPaid);
+    event payedInsuree(address insuree, uint value);
 
     /********************************************************************************************/
     /*                                      CONSTRUCTOR DEFINITION                              */
@@ -75,9 +86,7 @@ contract FlightSuretyData {
        
         addAirline(initialAirline, msg.sender);
         registerAirline(initialAirline);
-
-        //TODO: Tests
-  }
+    }
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -155,6 +164,7 @@ contract FlightSuretyData {
                             requireContractOwner
     {
         authorizedContracts[appContractAddress] = true; 
+        emit authorizedContract(appContractAddress);
     }
 
     function deauthorizeContract
@@ -165,6 +175,7 @@ contract FlightSuretyData {
                             requireContractOwner
     {
         delete authorizedContracts[appContractAddress];
+        emit deauthorizedContract(appContractAddress);
     }
 
     /********************************************************************************************/
@@ -201,7 +212,7 @@ contract FlightSuretyData {
             airlines[airline].registrants[requester] = true;
         }
 
-        //TODO: emmit event*/
+        emit addedAirline(airline, requester);
         
     }
 
@@ -218,7 +229,7 @@ contract FlightSuretyData {
         airlines[airline].isRegistered = true;
 
         return airlines[airline].registeredIndex;
-        //TODO: emmit event
+        emit registeredAirline(airline);
     }
 
     function activateAirline(address airline)
@@ -233,7 +244,7 @@ contract FlightSuretyData {
         airlines[airline].activeIndex = activeAirlines.push(airline) -1;
         airlines[airline].isActive = true;
         return airlines[airline].activeIndex;
-        //TODO: emmit event
+        emit activedAirline(airline);
     }
 
 
@@ -261,7 +272,6 @@ contract FlightSuretyData {
                                     external 
                                     requireAuthorizedCallerForRegisterAirline  
                                     requireIsOperational 
-                                    returns(uint index) 
     {
         
         require(airlines[airline].registeredIndex > 0, "Airline not registered");
@@ -275,16 +285,13 @@ contract FlightSuretyData {
         registeredAirlines[toDeleteIndex] = lastRegisteredAirline;
         airlines[lastRegisteredAirline].registeredIndex = toDeleteIndex; 
         registeredAirlines.length--;
-        return toDeleteIndex;   
-
-        //TODO: emmit event
+        emit removedRegisteredAirline(airline,toDeleteIndex);
     }    
 
      function removeActiveAirline(address airline)
                                 external 
                                 requireAuthorizedCallerForRegisterAirline  
                                 requireIsOperational 
-                                returns(uint index) 
      {
         
         require(isActiveAirline(airline), "Airline not active");
@@ -298,9 +305,8 @@ contract FlightSuretyData {
         activeAirlines[toDeleteIndex] = lastActivedAirline;
         airlines[lastActivedAirline].activeIndex = toDeleteIndex; 
         activeAirlines.length--;
-        return toDeleteIndex; 
+        emit removedActiveAirline(airline,toDeleteIndex);
 
-        //TODO: emmit event  
     }    
 
     //TODO: documentation
@@ -324,8 +330,8 @@ contract FlightSuretyData {
 
     function getActiveAirlines()
                                 external
-                                view //TODO: check it
-                                requireAuthorizedCaller 
+                                view 
+                                //requireAuthorizedCaller FIXME:
                                 requireIsOperational
                                 returns (address[])  {
         return activeAirlines;                                    
@@ -334,7 +340,7 @@ contract FlightSuretyData {
     function getAirlineFunds(address airline)
                             public
                             view 
-                            requireAuthorizedCaller 
+                            //requireAuthorizedCaller FIXME:
                             requireIsOperational
                             returns (uint256) {
         return airlines[airline].fundsValue;
@@ -373,10 +379,8 @@ contract FlightSuretyData {
         });
 
         flightInsurances[_flightKey].push(_insuranceKey);
-        
-        fund(airline); //TODO: check it
-
-        //TODO: emit insurancePurchased(airline, flight, timestamp, passenger, insuranceAmount);
+        fund(airline); 
+        emit insurancePurchased(airline, flight, timestamp, buyer, msg.value);
     }
 
 
@@ -420,16 +424,13 @@ contract FlightSuretyData {
         require(creditsToPay > getAirlineFunds(insurance.insurer) , "Insurer not have funds to pay");
 
         airlines[insurance.insurer].fundsValue.sub(creditsToPay);
-        /*insureeCredits[insurance.insuree] = InsureeCredit({
-            insureeAddress: insurance.insuree,
-            creditValue: creditsToPay
-        });*/
-    
-       insureeCredits[insurance.insuree].insureeAddress = insurance.insuree;
-       insureeCredits[insurance.insuree].creditValue = creditsToPay;
-       insureeCredits[insurance.insuree].creditedInsurances.push(insuranceKey);
+       
+        insureeCredits[insurance.insuree].insureeAddress = insurance.insuree;
+        insureeCredits[insurance.insuree].creditValue = creditsToPay;
+        insureeCredits[insurance.insuree].creditedInsurances.push(insuranceKey);
+        insurances[insuranceKey].isPaid = true;
         
-        //TODO: emit insuranceClaimed(airline, flight, timestamp, passenger, amountCreditedToPassenger);
+        emit creditedFunds(insuranceKey, insurance.flightKey, insurance.insurer, insurance.insuree, insurance.value, insurance.isPaid);
     }
     
 
@@ -443,13 +444,10 @@ contract FlightSuretyData {
                         requireIsOperational
     {
         require(insureeCredits[requester].creditValue > 0, "Not credits to transfer");
-
+        uint256 valueToPay = insureeCredits[requester].creditValue;
         insureeCredits[requester].creditValue = 0;
-        requester.transfer(insureeCredits[requester].creditValue);
-
-        insureeCredits[requester].paidInsurances = insureeCredits[requester].creditedInsurances; //TODO: check it;
-
-        //TODO: emits
+        requester.transfer(valueToPay);
+        emit payedInsuree(requester, valueToPay);
         
     }
 

@@ -25,7 +25,6 @@ contract('Flight Surety Tests', async (accounts) => {
   it(`(multiparty) can block access to setOperatingStatus() for non-Contract Owner account`, async function () {
 
       // Ensure that access is denied for non-Contract Owner account
-      // Ensure that access is denied for non-Contract Owner account
       let accessDenied = false;
       try 
       {
@@ -64,26 +63,6 @@ contract('Flight Surety Tests', async (accounts) => {
       assert.equal(accessDenied, false, "Access not restricted to Contract Owner");
       
   });
-
-  /*it(`(multiparty) can block access to functions using requireIsOperational when operating status is false`, async function () {
-
-      await config.flightSuretyData.setOperatingStatus(false);
-
-      let reverted = false;
-      try 
-      {
-          await config.flightSurety.registerAirline(config.testAddresses[2]);
-      }
-      catch(e) {
-          reverted = true;
-      }
-      assert.equal(reverted, true, "Access not blocked for requireIsOperational");      
-
-      // Set it back for other tests to work
-      await config.flightSuretyData.setOperatingStatus(true, {from: config.firstAirline});
-
-  });*/
-
 
   it('(airline) Only existing airline may register a new airline until there are at least four airlines registered', async () => {
     
@@ -146,8 +125,6 @@ contract('Flight Surety Tests', async (accounts) => {
     // ASSERT
     assert.equal(resultAirline6, false, "Airline registered requires multi-party consensus of 50% of registered airlines");
     assert.equal(resultAirline7, true, "Airline registered has consensus of 50% of registered airlines");
-
-    
     
   });
 
@@ -163,6 +140,12 @@ contract('Flight Surety Tests', async (accounts) => {
     // ASSERT
     assert.equal(isRegisteredAirline7, true, "Airline 7 shoud be registered");
     assert.equal(isActiveAirline7, false, "Airline 7 shoud not be active yet");
+    
+    // FIXME: remover
+    let activeAirlines = await config.flightSuretyData.getActiveAirlines.call();
+    let airlineFunds = await config.flightSuretyData.getAirlineFunds.call(airline7);
+    console.log(activeAirlines);
+    console.log(airlineFunds);
 
 
     // ACT (Submitting 1 ether)
@@ -172,8 +155,13 @@ contract('Flight Surety Tests', async (accounts) => {
         value: config.weiMultiple * 1
     });
 
-    isActiveAirline7 = await config.flightSuretyData.isActiveAirline.call(airline7, {from: config.owner}); 
-
+    
+    // FIXME: remover
+    activeAirlines = await config.flightSuretyData.getActiveAirlines.call();
+    airlineFunds = await config.flightSuretyData.getAirlineFunds.call(airline7);
+    console.log(activeAirlines);
+    console.log(airlineFunds);
+    
     // ASSERT
     assert.equal(isActiveAirline7, false, "Airline 7 shoud not be active yet");
 
@@ -181,15 +169,52 @@ contract('Flight Surety Tests', async (accounts) => {
     
     await config.flightSuretyApp.submitFunds({
         from: airline7,
-        value: config.weiMultiple * 1
+        value: config.weiMultiple * 9
     });
+
 
     isActiveAirline7 = await config.flightSuretyData.isActiveAirline.call(airline7, {from: config.owner}); 
 
+    // FIXME: remover
+    activeAirlines = await config.flightSuretyData.getActiveAirlines.call();
+    airlineFunds = await config.flightSuretyData.getAirlineFunds.call(airline7);
+    console.log(activeAirlines);
+    console.log(airlineFunds);
+
     // ASSERT
-    assert.equal(isActiveAirline7, false, "Airline 7 shoud be active now");
+    assert.equal(isActiveAirline7, true, "Airline 7 shoud be active now");
+
+
+    
+    
     
   });
+
+
+
+  /*it(`(passenger) can buy a flight insurance`, async function () {
+    
+    // ARRANGE
+    let airline7 = accounts[7];
+    let passenger9 = accounts[9];
+    let purchased = false;
+    
+    // ACT
+    try {
+        await config.flightSuretyApp.buyInsurance(airline7, "1234 - New York to Sao Paulo", Math.floor(Date.now() / 1000), {
+            from: passenger9,
+            value: config.weiMultiple * 1
+        });
+        purchased = true;
+    } catch (e) {
+        console.log(e);
+        purchased = false;
+    }
+
+    // ASSERT
+    assert.equal(purchased, true, "Passenger should be to buy a flight insurance");
+
+});*/
 
   
 });
