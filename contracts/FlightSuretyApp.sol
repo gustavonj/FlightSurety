@@ -151,9 +151,9 @@ contract FlightSuretyApp {
     {
         require(msg.value > 0, "Funds value is 0");
 
-        //flightSuretyData.fund.value(msg.value)(msg.sender);
+        flightSuretyData.fund.value(msg.value)(msg.sender);
         //flightSuretyData.fund.value(msg.sender);
-        flightSuretyData.fund(msg.sender);
+        //flightSuretyData.fund(msg.sender);
 
         uint256 submittedFunds = flightSuretyData.getAirlineFunds(msg.sender);
         if(submittedFunds >= 10 && !flightSuretyData.isActiveAirline(msg.sender)){
@@ -181,7 +181,7 @@ contract FlightSuretyApp {
             msg.sender.transfer(msg.value - MAX_INSURANCE_VALUE); //resend the value exceeded
         }
 
-        flightSuretyData.buyInsurance(airline, flight, timestamp, msg.sender);
+        flightSuretyData.buyInsurance.value(msg.value)(airline, flight, timestamp, msg.sender);
         //TODO: emit insurancePurchased(airline, flight, timestamp, passenger, insuranceAmount);
     }
 
@@ -204,7 +204,7 @@ contract FlightSuretyApp {
     }
 
                        
-     function payToInsuree(address requester)  external  requireIsOperational() { //TODO: check it não precisa de mais requires?
+     function payToInsuree(address requester)  external requireIsOperational() { //TODO: check it não precisa de mais requires?
          flightSuretyData.payToInsuree(requester);
      }
 

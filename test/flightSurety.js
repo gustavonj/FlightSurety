@@ -141,26 +141,12 @@ contract('Flight Surety Tests', async (accounts) => {
     assert.equal(isRegisteredAirline7, true, "Airline 7 shoud be registered");
     assert.equal(isActiveAirline7, false, "Airline 7 shoud not be active yet");
     
-    // FIXME: remover
-    let activeAirlines = await config.flightSuretyData.getActiveAirlines.call();
-    let airlineFunds = await config.flightSuretyData.getAirlineFunds.call(airline7);
-    console.log(activeAirlines);
-    console.log(airlineFunds);
-
-
     // ACT (Submitting 1 ether)
-    
     await config.flightSuretyApp.submitFunds({
         from: airline7,
         value: config.weiMultiple * 1
     });
 
-    
-    // FIXME: remover
-    activeAirlines = await config.flightSuretyData.getActiveAirlines.call();
-    airlineFunds = await config.flightSuretyData.getAirlineFunds.call(airline7);
-    console.log(activeAirlines);
-    console.log(airlineFunds);
     
     // ASSERT
     assert.equal(isActiveAirline7, false, "Airline 7 shoud not be active yet");
@@ -172,27 +158,16 @@ contract('Flight Surety Tests', async (accounts) => {
         value: config.weiMultiple * 9
     });
 
-
     isActiveAirline7 = await config.flightSuretyData.isActiveAirline.call(airline7, {from: config.owner}); 
-
-    // FIXME: remover
-    activeAirlines = await config.flightSuretyData.getActiveAirlines.call();
-    airlineFunds = await config.flightSuretyData.getAirlineFunds.call(airline7);
-    console.log(activeAirlines);
-    console.log(airlineFunds);
 
     // ASSERT
     assert.equal(isActiveAirline7, true, "Airline 7 shoud be active now");
-
-
-    
-    
     
   });
 
 
 
-  /*it(`(passenger) can buy a flight insurance`, async function () {
+  it(`(passenger) can buy a flight insurance`, async function () {
     
     // ARRANGE
     let airline7 = accounts[7];
@@ -201,7 +176,7 @@ contract('Flight Surety Tests', async (accounts) => {
     
     // ACT
     try {
-        await config.flightSuretyApp.buyInsurance(airline7, "1234 - New York to Sao Paulo", Math.floor(Date.now() / 1000), {
+        await config.flightSuretyApp.buyInsurance(airline7, "1234 - New York to Sao Paulo", 1, {
             from: passenger9,
             value: config.weiMultiple * 1
         });
@@ -214,7 +189,54 @@ contract('Flight Surety Tests', async (accounts) => {
     // ASSERT
     assert.equal(purchased, true, "Passenger should be to buy a flight insurance");
 
-});*/
+});
+
+
+it(`(passengers) can to be credited`, async function () {
+    
+    // ARRANGE
+    let airline7 = accounts[7];
+    let credited = false;
+    
+    // ACT
+    try {
+        await config.flightSuretyApp.creditInsurees(airline7, "1234 - New York to Sao Paulo", 1);
+        credited = true;
+    } catch (e) {
+        console.log(e);
+        credited = false;
+    }
+
+    // ASSERT
+    assert.equal(credited, true, "Passengers should have been credited");
+
+});
+
+
+it(`(passenger) can to be payed/refunded`, async function () {
+    
+    // ARRANGE
+    let airline7 = accounts[7];
+    
+    // assuming previous tests, the nine passenger can be refunded now
+    let passenger9 = accounts[9];
+
+    let payed = false;
+
+    // ACT
+    try {
+        await config.flightSuretyApp.payToInsuree(passenger9);
+        payed = true;
+      
+    } catch (e) {
+        console.log(e);
+        payed = false;
+    }
+
+    // ASSERT
+    assert.equal(payed, true, "Passenger should be refunded");
+
+});
 
   
 });

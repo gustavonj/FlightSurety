@@ -59,7 +59,7 @@ contract FlightSuretyData {
 
     event addedAirline(address airlineAddress, address requester);
     event registeredAirline(address airlineAddress);
-    event airlineSubmittedFunds(address airlineAddress);
+    event airlineSubmittedFunds(address airlineAddress, uint256 value);
     event activedAirline(address airlineAddress);
 
     event removedActiveAirline(address airlineAddress, uint deletedIndex);
@@ -210,6 +210,7 @@ contract FlightSuretyData {
             airlines[airline].isActive = false;
             airlines[airline].registrantsIndexes.push(requester);
             airlines[airline].registrants[requester] = true;
+            airlines[airline].fundsValue = 0;
         }
 
         emit addedAirline(airline, requester);
@@ -361,9 +362,9 @@ contract FlightSuretyData {
                          requireIsOperational
                          requireAuthorizedCaller
     {
-        require(msg.value > 0, "Insurance value is 0");
+        require(msg.value > 0, "Insurance value is zero");
         require(isActiveAirline(airline), "Airline is not active");
-        require(airlines[airline].airlineAddress == buyer, "Insuree can not to be an airline");
+        require(airlines[airline].airlineAddress != buyer, "Insuree can not to be an airline");
         
         bytes32 _flightKey = getFlightKey(airline, flight, timestamp);
         bytes32 _insuranceKey = keccak256(abi.encodePacked(buyer, airline, flight, timestamp));
@@ -421,9 +422,9 @@ contract FlightSuretyData {
         Insurance insurance = insurances[insuranceKey];
         uint256 creditsToPay = insurance.value.mul(15).div(10);
 
-        require(creditsToPay > getAirlineFunds(insurance.insurer) , "Insurer not have funds to pay");
+        require(creditsToPay < getAirlineFunds(insurance.insurer) , "Insurer not have funds to pay");
 
-        airlines[insurance.insurer].fundsValue.sub(creditsToPay);
+        airlines[insurance.insurer].fundsValue = airlines[insurance.insurer].fundsValue.sub(creditsToPay);
        
         insureeCredits[insurance.insuree].insureeAddress = insurance.insuree;
         insureeCredits[insurance.insuree].creditValue = creditsToPay;
@@ -460,9 +461,11 @@ contract FlightSuretyData {
                 public 
                 payable 
                 requireIsOperational{
+        require(msg.value > 0, "Funds equal zero");
         require(airlines[senderAddress].airlineAddress == senderAddress && isRegisteredAirline(senderAddress), "Airline not registered");
-        airlines[senderAddress].fundsValue.add(msg.value);
-        //TODO: test it
+        airlines[senderAddress].fundsValue = airlines[senderAddress].fundsValue.add(msg.value);
+        emit airlineSubmittedFunds(airlines[senderAddress].airlineAddress, airlines[senderAddress].fundsValue);
+        emit airlineSubmittedFunds(senderAddress, msg.value);
     }
 
     function getFlightKey
