@@ -201,10 +201,11 @@ it(`(passengers) can to be credited`, async function () {
     
     // ACT
     try {
-        await config.flightSuretyApp.creditInsurees(airline7, "1234 - New York to Sao Paulo", 1);
+        await config.flightSuretyApp.creditInsurees(airline7, "1234 - New York to Sao Paulo", 1, {
+            from: airline7
+        });
         credited = true;
     } catch (e) {
-        console.log(e);
         credited = false;
     }
 

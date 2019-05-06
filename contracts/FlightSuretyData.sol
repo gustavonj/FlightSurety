@@ -189,7 +189,7 @@ contract FlightSuretyData {
 
    /**
     * @dev Add an airline to the registration queue
-    *      Can only be called from FlightSuretyApp contract //TODO: check address FlightSuretyApp
+    *      Can only be called from FlightSuretyApp contract
     *
     */   
     function addAirline(    
